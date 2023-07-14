@@ -1,5 +1,6 @@
 require 'minitest/autorun'
 require 'rack/test'
+require 'concurrent'
 require_relative './server'
 
 class ServerTest < Minitest::Test
