@@ -65,4 +65,22 @@ class ServerTest < Minitest::Test
     delete '/data/my-repo/missing'
     assert_equal 404, last_response.status
   end
+
+  def test_concurrent_requests
+    counter = Concurrent::AtomicFixnum.new(0)
+
+    executor = Concurrent::FixedThreadPool.new(5)
+
+    10.times do
+      executor.post do
+        put '/data/my-repo', 'concurrent request'
+        counter.increment if last_response.ok?
+      end
+    end
+
+    executor.shutdown
+    executor.wait_for_termination
+
+    assert counter.value > 1
+  end
 end
